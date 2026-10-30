@@ -1,6 +1,6 @@
 import { cookies, headers } from "next/headers";
 import { Suspense } from "react";
-import { COOKIE_DISPOSITIVO, navegadorPermitido } from "@/lib/acceso";
+import { COOKIE_DISPOSITIVO, PATRON_POR_DEFECTO, navegadorPermitido } from "@/lib/acceso";
 import { EstadoFinal } from "@/components/EstadoFinal";
 import { finPorMotivo } from "@/lib/motivos";
 import { Formulario } from "@/components/Formulario";
@@ -37,7 +37,7 @@ async function Contenido({ params }: { params: Promise<{ token: string }> }) {
       "user-agent": userAgent || "(vacío)",
       "cookie del navegador": dispositivo ? "presente" : "no llegó",
       "modo": process.env.MOCK_OLIVIA === "true" ? "simulado (MOCK_OLIVIA=true)" : "Olivia",
-      "filtro de navegador": process.env.RESTRINGIR_NAVEGADOR === "true" ? `activo (patrón: ${process.env.PATRON_NAVEGADOR_PERMITIDO || "WhatsApp"})` : "apagado",
+      "filtro de navegador": process.env.RESTRINGIR_NAVEGADOR === "true" ? `activo (patrón: ${process.env.PATRON_NAVEGADOR_PERMITIDO || PATRON_POR_DEFECTO})` : "apagado",
       "token (inicio)": `${token.slice(0, 12)}${token.length > 12 ? "…" : ""} (${token.length} caracteres)`,
       ...(detalle ? { detalle } : {}),
     };

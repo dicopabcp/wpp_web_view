@@ -17,7 +17,7 @@ Con `MOSTRAR_DIAGNOSTICO=true`, la pantalla de rechazo muestra el motivo, el use
 ## Acceso solo desde el enlace de WhatsApp
 
 - **Enlace ligado al primer navegador (siempre activo):** `proxy.ts` asigna a cada navegador una cookie httpOnly (`bcpwa_disp`). La primera vez que se abre el enlace, Olivia guarda en la sesión el hash de ese identificador. Si el mismo link se abre en otro navegador o equipo, se muestra "Este enlace ya se abrió en otro dispositivo".
-- **Filtro por navegador (apagado por defecto):** `RESTRINGIR_NAVEGADOR=true` bloquea los user-agents que no coinciden con `PATRON_NAVEGADOR_PERMITIDO` (por defecto `WhatsApp`). No es una barrera de seguridad: el user-agent se puede falsificar, en iPhone el navegador de WhatsApp se identifica como Safari y en Android a veces WhatsApp abre Chrome. Actívalo solo después de probar en celulares reales.
+- **Filtro por navegador (apagado por defecto):** `RESTRINGIR_NAVEGADOR=true` bloquea los user-agents que no coinciden con `PATRON_NAVEGADOR_PERMITIDO` (por defecto `WA4A/|WhatsApp`; `WA4A/` es el navegador interno de WhatsApp para Android, verificado en un celular real). No es una barrera de seguridad: el user-agent se puede falsificar, en iPhone el navegador de WhatsApp se identifica como Safari y en Android a veces WhatsApp abre Chrome. Actívalo solo después de probar en celulares reales.
 
 ## Requisitos
 
