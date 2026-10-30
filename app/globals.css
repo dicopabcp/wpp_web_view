@@ -150,6 +150,10 @@ h1 { margin: 0; font-size: 23px; line-height: 1.2; font-weight: 600; text-wrap: 
 .cf-texto { margin: -4px 0 0; font-size: 14.5px; line-height: 1.45; color: rgba(255,255,255,.88); max-width: 46ch; }
 .cf-giro { position: absolute; top: 50%; left: 50%; margin: -15px 0 0 -15px; border-color: rgba(255,255,255,.3); border-top-color: #fff; }
 .cf-abajo { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 16px max(22px, env(safe-area-inset-bottom)); display: grid; justify-items: center; gap: 14px; background: linear-gradient(transparent, rgba(10,16,30,.7)); }
+.cf-ejemplo { margin: 0; display: grid; justify-items: center; gap: 4px; }
+.cf-ejemplo svg { width: 150px; height: auto; display: block; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.35); }
+.cf-ejemplo figcaption { font-size: 12px; color: rgba(255,255,255,.8); }
+@media (max-height: 700px) { .cf-ejemplo svg { width: 110px; } }
 .cf-instruccion { margin: 0; font-size: 15px; font-weight: 600; text-align: center; }
 .cf-obturador { width: 74px; height: 74px; border-radius: 50%; border: 5px solid #fff; background: var(--bcp-orange); box-shadow: 0 0 0 3px rgba(0,0,0,.25); }
 .cf-obturador:active { transform: scale(.94); }

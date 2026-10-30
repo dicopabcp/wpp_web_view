@@ -38,7 +38,7 @@ import type { Cuenta, Movimiento, RespuestaPantalla, Saldo } from "@/lib/tipos";
 const TEXTOS_FOTO = {
   selfie: { titulo: "Tómate una selfie", texto: "Queremos asegurarnos que eres tú. Asegúrate de tener buena iluminación y no utilizar lentes, gorra ni barbijo.", instruccion: "Ubica tu rostro dentro del óvalo" },
   anverso: { titulo: "Foto de tu carnet por delante", texto: "Usa el lado con tu foto. Evita reflejos y que se vean los cuatro bordes.", instruccion: "Ubica tu carnet dentro del marco" },
-  reverso: { titulo: "Foto de tu carnet por detrás", texto: "Ahora el lado con el código de barras. Evita reflejos y que se vean los cuatro bordes.", instruccion: "Ubica tu carnet dentro del marco" },
+  reverso: { titulo: "Foto de tu carnet por detrás", texto: "Ahora el lado con tu huella y el código QR. Evita reflejos y que se vean los cuatro bordes.", instruccion: "Ubica tu carnet dentro del marco" },
 };
 
 // Llamada a /api/pantalla compartida por todos los flujos: los rechazos de enlace o de sesión terminan el flujo.
@@ -122,6 +122,7 @@ function MotorDePasos({ token, flujo }: { token: string; flujo: string }) {
         <CapturaFoto
           key={clave}
           modo={paso.modo === "selfie" ? "selfie" : "carnet"}
+          lado={paso.modo === "selfie" ? undefined : paso.modo}
           seccion={definicion.seccion}
           titulo={t.titulo}
           texto={t.texto}
