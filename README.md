@@ -10,6 +10,10 @@ WhatsApp ──botón CTA URL──▶ /s/<token> (esta web) ──/api/*──�
 - El token lo firma Olivia (HMAC-SHA256, 10 minutos). Un CTA nuevo invalida el anterior.
 - Al terminar, la web vuelve sola a WhatsApp (`https://wa.me/<número>`) y Olivia ya envió el siguiente mensaje al chat.
 
+## Diagnóstico de rechazos
+
+Con `MOSTRAR_DIAGNOSTICO=true`, la pantalla de rechazo muestra el motivo, el user-agent que llegó al servidor, si llegó la cookie del navegador, el modo (simulado u Olivia), el estado del filtro de navegador y el inicio del token, y no vuelve sola a WhatsApp. Cada rechazo se registra siempre en el log del servidor (`[s/token] rechazo`). Apágalo después de probar.
+
 ## Acceso solo desde el enlace de WhatsApp
 
 - **Enlace ligado al primer navegador (siempre activo):** `proxy.ts` asigna a cada navegador una cookie httpOnly (`bcpwa_disp`). La primera vez que se abre el enlace, Olivia guarda en la sesión el hash de ese identificador. Si el mismo link se abre en otro navegador o equipo, se muestra "Este enlace ya se abrió en otro dispositivo".
@@ -80,5 +84,31 @@ En `olivia-bxt-core-develop/OLIVIA.CORE.API/appsettings.json`, sección `WppForm
 | `FlowValidacionIdentidad` | carnet y celular, selfie, carnet anverso, carnet reverso, clave | `CSM_DATOS_CI`, `CSM_SELFIE`, `CSM_DOCUMENTO_ID` (dos veces), `CSM_LOGIN_CLAVE` |
 | `FlowValidacionIdentidadClave` | clave | `CSM_LOGIN_CLAVE` |
 | `FlowConsultaMovimientos` | código, cuentas, saldo, movimientos, detalle | `CSM_OTP_CORREO`, `CSM_REENVIAR_OTP`, `CSM_CUENTAS`, `CSM_ELEGIR_CUENTA`, `CSM_ELEGIR_MOVIMIENTO` |
+| `FlowRegistroWhatsApp` | carnet y celular, selfie, carnet anverso y reverso, clave | `ACBM_DATOS_CI`, `ACBM_SELFIE`, `ACBM_DOCUMENTO_ID`, `ACBM_VALIDAR_CLAVE` |
+| `FlowAperturaCuentaNoCliente` | identidad, correo y código, propósito, carta SEGIP y buró, domicilio, PEP, estado civil, situación laboral, referencia, contrato, clave y usuario de Banca Móvil, número de cuenta | `APC_*` (crea la cuenta con `APC_RESUMEN`) |
+| `FlowAperturaCuentaYaClienteSinBM` | identidad, tus cuentas, correo y código, usuario y clave de Banca Móvil | `ACSBM_*` |
+| `FlowCambioClave` | reglas, código al correo, selfie, nueva clave | `CCL_ENVIAR_OTP`, `CCL_OTP_CORREO`, `CCL_SELFIE`, `CCL_NUEVA_CLAVE` |
+| `FlowCierreWhatsApp` | código al correo, selfie, confirmación | `CWA_ENVIAR_OTP`, `CWA_OTP_CORREO`, `CWA_SELFIE`, `CWA_CONFIRMAR_CIERRE` |
+| `FlowSegundaCuenta` | cuenta y uso, carta, selfie, verificación de datos, contrato, token, número de cuenta | `SGC_*` (crea la cuenta con `SGC_ABRIR_CUENTA`) |
 
-Las fotos se reducen en el navegador a 1280 px (JPEG) antes de enviarse.
+Las definiciones de pasos y pantallas están en `lib/flujos.ts`; los pasos, en `components/Pasos.tsx`. Las fotos se reducen en el navegador a 1280 px (JPEG) antes de enviarse.
+
+## Probar desde WhatsApp con links de prueba
+
+1. Levanta esta web con `MOCK_OLIVIA=true` y publícala con HTTPS (por ejemplo `npx cloudflared tunnel --url http://localhost:3000`).
+2. En el `appsettings.json` de Olivia pon `WppFormularios:ModoPruebas` en `true` y completa `WppFormularios:WebBaseUrl` con la URL del túnel. Ese interruptor activa los links de prueba y las frases de prueba; no depende de `ASPNETCORE_ENVIRONMENT`.
+3. Escribe al bot una frase de prueba. Olivia responde con el botón y el link simulado del flujo:
+
+| Frase | Flujo | Link |
+|---|---|---|
+| `prueba identidad` | Validación de identidad | `/s/demo-identidad` |
+| `prueba clave` | Solo clave | `/s/demo-clave` |
+| `prueba movimientos` | Saldos y movimientos | `/s/demo-movimientos` |
+| `prueba registro` | Registro en WhatsApp | `/s/demo-registro` |
+| `prueba apertura` | Apertura de cuenta | `/s/demo-apertura` |
+| `prueba sin banca movil` | Cliente sin Banca Móvil | `/s/demo-sin-bm` |
+| `prueba cambio clave` | Cambio de clave | `/s/demo-cambio-clave` |
+| `prueba cierre` | Cierre de WhatsApp | `/s/demo-cierre` |
+| `prueba segunda cuenta` | Segunda cuenta | `/s/demo-segunda-cuenta` |
+
+En producción `ModoPruebas` debe estar en `false` (así viene en `appsettings.json`); con `false` las frases de prueba no hacen nada.

@@ -16,11 +16,13 @@ export function volverAWhatsApp() {
 }
 
 // Pantalla final del Figma: muestra el resultado y vuelve sola a WhatsApp (3 s si hubo un problema, 4 s si salió bien).
-export function EstadoFinal({ fin }: { fin: Fin }) {
-  const [segundos, setSegundos] = useState(fin.tipo === "bien" ? 4 : 3);
+// Con diagnóstico (MOSTRAR_DIAGNOSTICO=true) no vuelve sola a WhatsApp, para poder leer los datos.
+export function EstadoFinal({ fin, diagnostico }: { fin: Fin; diagnostico?: Record<string, string> }) {
+  const [segundos, setSegundos] = useState(diagnostico ? -1 : fin.tipo === "bien" ? 4 : 3);
 
   useEffect(() => {
-    if (segundos <= 0) {
+    if (segundos < 0) return;
+    if (segundos === 0) {
       volverAWhatsApp();
       return;
     }
@@ -52,6 +54,16 @@ export function EstadoFinal({ fin }: { fin: Fin }) {
         <h2>{fin.titulo}</h2>
         <p>{fin.texto}</p>
         {segundos > 0 && <p className="regreso">Regresando a WhatsApp en {segundos}...</p>}
+        {diagnostico && (
+          <dl className="diagnostico" aria-label="Diagnóstico">
+            {Object.entries(diagnostico).map(([clave, valor]) => (
+              <div key={clave}>
+                <dt>{clave}</dt>
+                <dd>{valor}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
       </div>
     </Marco>
   );

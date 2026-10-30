@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { COOKIE_DISPOSITIVO, navegadorPermitido } from "@/lib/acceso";
 import { procesarPantalla } from "@/lib/olivia";
-import { PANTALLAS_PERMITIDAS } from "@/lib/tipos";
+import { PATRON_PANTALLA } from "@/lib/tipos";
 
 // Las fotos llegan en base64 ya reducidas en el navegador; se limita el cuerpo para no reenviar archivos enormes a Olivia.
 const MAX_BYTES = 6 * 1024 * 1024;
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ success: false, mensaje: "Solicitud inválida.", expired: false, enviarGenesys: false }, { status: 400 });
   }
   const { token, pantalla, data } = cuerpo;
-  if (typeof token !== "string" || typeof pantalla !== "string" || !PANTALLAS_PERMITIDAS.has(pantalla)) {
+  if (typeof token !== "string" || typeof pantalla !== "string" || !PATRON_PANTALLA.test(pantalla)) {
     return Response.json({ success: false, mensaje: "Solicitud inválida.", expired: false, enviarGenesys: false }, { status: 400 });
   }
   try {

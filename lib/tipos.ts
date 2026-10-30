@@ -20,16 +20,5 @@ export type Cuenta = { numeroCuenta: string; tipo: string; descripcion: string }
 export type Saldo = { saldo: number; moneda: string };
 export type Movimiento = { fecha: string; glosa: string; monto: number };
 
-export const FLUJOS_SOPORTADOS = ["FlowValidacionIdentidad", "FlowValidacionIdentidadClave", "FlowConsultaMovimientos"] as const;
-
-export const PANTALLAS_PERMITIDAS = new Set([
-  "CSM_DATOS_CI",
-  "CSM_SELFIE",
-  "CSM_DOCUMENTO_ID",
-  "CSM_LOGIN_CLAVE",
-  "CSM_OTP_CORREO",
-  "CSM_REENVIAR_OTP",
-  "CSM_CUENTAS",
-  "CSM_ELEGIR_CUENTA",
-  "CSM_ELEGIR_MOVIMIENTO",
-]);
+// Códigos de pantalla aceptados por /api/pantalla (prefijos de los flujos de Olivia)
+export const PATRON_PANTALLA = /^(CSM|ACBM|APC|ACSBM|CCL|CWA|SGC)_[A-Z_]{2,40}$/;
