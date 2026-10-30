@@ -1,4 +1,6 @@
+import { cookies, headers } from "next/headers";
 import { Suspense } from "react";
+import { COOKIE_DISPOSITIVO, navegadorPermitido } from "@/lib/acceso";
 import { EstadoFinal } from "@/components/EstadoFinal";
 import { finPorMotivo } from "@/lib/motivos";
 import { Formulario } from "@/components/Formulario";
@@ -25,9 +27,13 @@ export default function PaginaEnlace({ params }: PageProps<"/s/[token]">) {
 
 async function Contenido({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
+  if (!navegadorPermitido((await headers()).get("user-agent"))) {
+    return <EstadoFinal fin={finPorMotivo("NAVEGADOR_NO_PERMITIDO")} />;
+  }
+  const dispositivo = (await cookies()).get(COOKIE_DISPOSITIVO)?.value ?? "";
   let sesion;
   try {
-    sesion = await obtenerSesion(token);
+    sesion = await obtenerSesion(token, dispositivo);
   } catch (e) {
     console.error("[s/token]", e instanceof Error ? e.message : e);
     return <EstadoFinal fin={finPorMotivo("SERVICIO_NO_DISPONIBLE")} />;

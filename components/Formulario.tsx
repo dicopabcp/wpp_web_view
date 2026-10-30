@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { EstadoFinal, volverAWhatsApp, type Fin } from "./EstadoFinal";
-import { Camara } from "./Camara";
+import { finPorMotivo } from "@/lib/motivos";
+import { CapturaFoto } from "./CapturaFoto";
 import { Marco } from "./Marco";
 import type { Cuenta, Movimiento, RespuestaPantalla, Saldo } from "@/lib/tipos";
 
@@ -49,15 +50,12 @@ export function Formulario({ token, flujo }: { token: string; flujo: string }) {
       });
       const respuesta = (await r.json()) as RespuestaPantalla;
       if (respuesta.expired || respuesta.enviarGenesys) {
-        const textoMotivo: Record<string, string> = {
-          TOKEN_REEMPLAZADO: "Por tu seguridad, cada enlace funciona una sola vez. Vuelve al chat para continuar.",
-          TOKEN_VENCIDO: "Por tu seguridad, los enlaces duran 10 minutos. Vuelve a WhatsApp y pide uno nuevo.",
-          SESION_VENCIDA: "Tu sesión terminó. Vuelve a WhatsApp y escríbenos de nuevo.",
-        };
+        const motivo = finPorMotivo(respuesta.mensaje);
+        const esMotivo = motivo.titulo !== finPorMotivo("").titulo;
         setFin({
           tipo: "mal",
-          titulo: respuesta.enviarGenesys ? "Te ayudaremos por el chat" : "No podemos continuar",
-          texto: textoMotivo[respuesta.mensaje] ?? (respuesta.mensaje || "Vuelve a WhatsApp para continuar."),
+          titulo: respuesta.enviarGenesys ? "Te ayudaremos por el chat" : esMotivo ? motivo.titulo : "No podemos continuar",
+          texto: esMotivo ? motivo.texto : respuesta.mensaje || "Vuelve a WhatsApp para continuar.",
         });
         return null;
       }
@@ -93,12 +91,13 @@ export function Formulario({ token, flujo }: { token: string; flujo: string }) {
       return <PasoDatos ocupado={ocupado} error={error} progreso={progreso} onEnviar={async (d) => (await enviar("CSM_DATOS_CI", d)) && ir("selfie")} />;
     case "selfie":
       return (
-        <PasoFoto
+        <CapturaFoto
           key="selfie"
-          tipo="selfie"
+          modo="selfie"
           seccion="Validación de identidad"
           titulo="Tómate una selfie"
           texto="Queremos asegurarnos que eres tú. Asegúrate de tener buena iluminación y no utilizar lentes, gorra ni barbijo."
+          instruccion="Ubica tu rostro dentro del óvalo"
           ocupado={ocupado}
           error={error}
           progreso={progreso}
@@ -108,12 +107,13 @@ export function Formulario({ token, flujo }: { token: string; flujo: string }) {
       );
     case "anverso":
       return (
-        <PasoFoto
+        <CapturaFoto
           key="anverso"
-          tipo="carnet"
+          modo="carnet"
           seccion="Validación de identidad"
           titulo="Foto de tu carnet por delante"
-          texto="Ubica el lado con tu foto dentro del recuadro. Evita reflejos y que se vean los cuatro bordes."
+          texto="Usa el lado con tu foto. Evita reflejos y que se vean los cuatro bordes."
+          instruccion="Ubica tu carnet dentro del marco"
           ocupado={ocupado}
           error={error}
           progreso={progreso}
@@ -123,12 +123,13 @@ export function Formulario({ token, flujo }: { token: string; flujo: string }) {
       );
     case "reverso":
       return (
-        <PasoFoto
+        <CapturaFoto
           key="reverso"
-          tipo="carnet"
+          modo="carnet"
           seccion="Validación de identidad"
           titulo="Foto de tu carnet por detrás"
           texto="Ahora el lado con el código de barras. Evita reflejos y que se vean los cuatro bordes."
+          instruccion="Ubica tu carnet dentro del marco"
           ocupado={ocupado}
           error={error}
           progreso={progreso}
@@ -385,34 +386,6 @@ function PasoDatos({ ocupado, error, progreso, onEnviar }: { ocupado: boolean; e
         <input id="acepta" type="checkbox" checked={acepta} onChange={(e) => setAcepta(e.target.checked)} />
         <span>He leído y acepto el tratamiento de mis datos personales</span>
       </label>
-    </Pantalla>
-  );
-}
-
-function PasoFoto(props: {
-  tipo: "selfie" | "carnet";
-  seccion: string;
-  titulo: string;
-  texto: string;
-  ocupado: boolean;
-  error: string;
-  progreso: readonly [number, number] | null;
-  onAtras: () => void;
-  onEnviar: (base64: string) => void;
-}) {
-  const [foto, setFoto] = useState("");
-  return (
-    <Pantalla
-      seccion={props.seccion}
-      titulo={props.titulo}
-      ocupado={props.ocupado}
-      progreso={props.progreso}
-      onAtras={props.onAtras}
-      pie={<BotonPrincipal texto="Continuar" habilitado={!!foto} ocupado={props.ocupado} onClick={() => props.onEnviar(foto)} />}
-    >
-      <p className="lead">{props.texto}</p>
-      <Camara modo={props.tipo} foto={foto} onFoto={setFoto} />
-      <ErrorCampo error={props.error} />
     </Pantalla>
   );
 }

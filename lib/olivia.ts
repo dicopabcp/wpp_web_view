@@ -23,12 +23,13 @@ async function llamarOlivia<T>(ruta: "Sesion" | "Pantalla", cuerpo: unknown): Pr
   return (await respuesta.json()) as T;
 }
 
-export async function obtenerSesion(token: string): Promise<SesionWeb> {
-  if (modoSimulado()) return sesionSimulada(token);
-  return llamarOlivia<SesionWeb>("Sesion", { token });
+// La primera llamada liga el enlace al navegador (dispositivo); las siguientes deben venir del mismo.
+export async function obtenerSesion(token: string, dispositivo: string): Promise<SesionWeb> {
+  if (modoSimulado()) return sesionSimulada(token, dispositivo);
+  return llamarOlivia<SesionWeb>("Sesion", { token, dispositivo });
 }
 
-export async function procesarPantalla(token: string, pantalla: string, data: unknown): Promise<RespuestaPantalla> {
-  if (modoSimulado()) return pantallaSimulada(token, pantalla, data);
-  return llamarOlivia<RespuestaPantalla>("Pantalla", { token, pantalla, data });
+export async function procesarPantalla(token: string, dispositivo: string, pantalla: string, data: unknown): Promise<RespuestaPantalla> {
+  if (modoSimulado()) return pantallaSimulada(token, dispositivo, pantalla, data);
+  return llamarOlivia<RespuestaPantalla>("Pantalla", { token, dispositivo, pantalla, data });
 }

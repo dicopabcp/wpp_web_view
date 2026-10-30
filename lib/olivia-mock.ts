@@ -11,6 +11,9 @@ const DEMOS: Record<string, Partial<SesionWeb>> = {
 
 export const TOKENS_DEMO = Object.keys(DEMOS);
 
+// Enlace -> navegador que lo abrió primero (en memoria; se reinicia con el servidor)
+const vinculos = new Map<string, string>();
+
 const esperar = () => new Promise((r) => setTimeout(r, 450));
 const ok = (data?: unknown): RespuestaPantalla => ({ success: true, mensaje: "", expired: false, enviarGenesys: false, data });
 const error = (mensaje: string): RespuestaPantalla => ({ success: false, mensaje, expired: false, enviarGenesys: false });
@@ -19,17 +22,27 @@ const campo = (data: unknown, nombre: string) =>
     ? ((data as Record<string, unknown>)[nombre] as string)
     : "";
 
-export async function sesionSimulada(token: string): Promise<SesionWeb> {
+export async function sesionSimulada(token: string, dispositivo: string): Promise<SesionWeb> {
   await esperar();
   const demo = DEMOS[token];
-  if (!demo) return { valido: false, motivo: "TOKEN_INVALIDO", flujo: "", pantallaInicial: "", celular: "" };
+  const rechazo = (motivo: string): SesionWeb => ({ valido: false, motivo, flujo: "", pantallaInicial: "", celular: "" });
+  if (!demo) return rechazo("TOKEN_INVALIDO");
+  if (demo.valido !== false) {
+    if (!dispositivo) return rechazo("DISPOSITIVO_REQUERIDO");
+    const vinculado = vinculos.get(token);
+    if (vinculado && vinculado !== dispositivo) return rechazo("DISPOSITIVO_NO_COINCIDE");
+    vinculos.set(token, dispositivo);
+  }
   return { valido: true, motivo: "", flujo: "", pantallaInicial: "", celular: "+591 7****567", ...demo };
 }
 
-export async function pantallaSimulada(token: string, pantalla: string, data: unknown): Promise<RespuestaPantalla> {
+export async function pantallaSimulada(token: string, dispositivo: string, pantalla: string, data: unknown): Promise<RespuestaPantalla> {
   await esperar();
   if (!DEMOS[token] || DEMOS[token].valido === false) {
     return { success: false, mensaje: "TOKEN_REEMPLAZADO", expired: true, enviarGenesys: false };
+  }
+  if (vinculos.get(token) !== dispositivo) {
+    return { success: false, mensaje: "DISPOSITIVO_NO_COINCIDE", expired: true, enviarGenesys: false };
   }
   switch (pantalla) {
     case "CSM_DATOS_CI":
